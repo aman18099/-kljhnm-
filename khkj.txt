@@ -1,0 +1,512 @@
+import React from 'react'
+import { NavLink } from 'react-router-dom'
+import "./buynow.css"
+
+
+const Empty = () => {
+    return (
+        <div className="buynow_section">
+            <div className="buynow_container">
+                <div className="empty_buy" style={{ padding: "40px 40px" }}>
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2xpOr8GbZhxyLr0uD8mEn9L6lsHT-jHq2Kg&usqp=CAU" alt="cart img" />
+                    <div className="emptydata">
+                        <h1>Your Amazon Basket is empty</h1>
+                        <p>See recommendations</p>
+                    </div>
+                    <NavLink className="empty_btn" to="/">Add Your Iteams</NavLink>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default Empty
+
+
+import React, { useContext } from 'react'
+import { Logincontext } from '../context/Contextprovider';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+const Option = ({ deletedata, get }) => {
+    // console.log(deletedata);
+
+    const { account, setAccount } = useContext(Logincontext);
+    // console.log(account);
+
+    const removedata = async (id) => {
+        try {
+            const res = await fetch(`remove/${id}`, {
+                method: "GET",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+                credentials: "include"
+            });
+
+            const data = await res.json();
+            // console.log(data);
+
+            if (res.status === 400 || !data) {
+                console.log("error aai remove time pr");
+            } else {
+                setAccount(data)
+                get();
+                toast.success("Iteam remove from cart 😃!", {
+                    position: "top-center"
+                });
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+
+    return (
+        <div className="add_remove_select" key={deletedata}>
+            <select name="" id="">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <p onClick={() => removedata(deletedata)} style={{ cursor: "pointer" }}>Delete</p><span>|</span>
+            <p className="forremovemedia">Save Or Later</p><span>|</span>
+            <p className="forremovemedia">See More like this</p>
+            <ToastContainer />
+        </div>
+
+    )
+}
+
+export default Option;
+
+
+
+import React, { useEffect, useState } from 'react'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { useHistory } from 'react-router';
+
+const Right = ({ iteam }) => {
+
+    // console.log(iteam);
+    const [val, setVal] = useState(false);
+
+    const [price, setPrice] = useState(0);
+
+    const history = useHistory("");
+
+    useEffect(() => {
+        totalAmount();
+    }, [iteam]);
+
+    const totalAmount = () => {
+        let price = 0
+        iteam.map((item) => {
+            price += item.price.cost
+        });
+        setPrice(price)
+    }
+
+    const proceesby = ()=>{
+        alert("Your Order is Confirmed");
+        history.push("/");
+    }
+
+    return (
+        <div className="right_buy">
+            <img src="https://images-eu.ssl-images-amazon.com/images/G/31/checkout/assets/TM_desktop._CB443006202_.png" alt="rightimg" />
+            <div className="cost_right">
+                <p>Your order is eligible for FREE Delivery. <br />
+                    <span style={{ color: "#565959" }}> Select this option at checkout. Details</span></p>
+                <h3>Subtotal ({iteam.length} items): <span style={{ fontWeight: "700" }}> ₹{price}.00</span></h3>
+                <button className="rightbuy_btn" onClick={proceesby} >Proceed to Buy</button>
+                <div className="emi" onClick={() => setVal(!val)}>
+                    Emi available
+                    {!val ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                </div>
+                <span className={val ? "show" : "hide"}> Your order qualifies for EMI with valid credit cards (not available on purchase of Gold,
+                    Jewelry, Gift cards and Amazon pay balance top up). Learn more</span>
+            </div>
+        </div>
+    )
+}
+
+export default Right;
+
+
+import React from 'react'
+import { useEffect,useState } from 'react';
+
+const Subtotal = ({iteam}) => {
+    const [price, setPrice] = useState(0);
+
+    useEffect(() => {
+        totalAmount();
+    }, [iteam]);
+
+    const totalAmount = () => {
+        let price = 0
+        iteam.map((item) => {
+            price += item.price.cost
+        });
+        setPrice(price)
+    }
+
+    return (
+        <div className="sub_item">
+            <h3>Subtotal ({iteam.length} items):<strong style={{ fontWeight: "700", color: "#111" }}> ₹{price}.00</strong></h3>
+        </div>
+    )
+}
+
+export default Subtotal
+
+
+.buynow_section{
+    width: 100%;
+    min-height:50vh;
+    position: relative;
+    top: 60px;
+    background-color: #EAEDED!important;
+}
+
+.buynow_section .buynow_container{  
+    margin: 0 auto;
+    padding:40px 20px;
+    display: flex;
+    /* justify-content: space-around; */
+}
+
+.buynow_container .left_buy{
+    flex: .7;
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 2px;
+}
+
+.left_buy h1{
+    font-weight: 500;
+    font-size: 28px;
+}
+
+.left_buy p{
+    font-size: 14px;
+    margin: 5px auto;
+    color: #007185;
+}
+
+.left_buy span{
+    display: block;
+    text-align: right;
+    color: #565959!important;
+    font-size: 14px;
+    padding-right: 3px;
+}
+
+
+.left_buy .item_containert{
+    padding: 10px 5px 20px 15px;
+    display: grid;
+    grid-template-columns:.8fr 2fr .1fr;
+}
+
+.item_containert img{
+    width: 130px;
+}
+
+.item_containert h3{
+    font-weight: 500;
+}
+
+.item_containert .item_price{
+    font-weight:700;
+}
+
+.item_containert p{
+    font-size: 13px;
+    color: #565959!important;
+    font-weight: 500;
+}
+
+.item_details img{
+    width: 66px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.item_details .unusuall{
+    color:#c45500!important;
+}
+
+.item_details .add_remove_select{
+    display: flex;
+    align-items: center;
+}
+
+
+.item_details .add_remove_select p{
+    color: #007185!important;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+.item_details .add_remove_select select{
+    padding: 5px;
+    width: 50px;
+    border-radius: 8px;
+    background-color: #eeeded;
+    letter-spacing: .2px;
+    margin-top: 4px;
+    outline: none;
+   border: 1px solid #e7e7e7;
+    box-shadow: 0 0 15px -7px rgba(0,0,0,1);
+}
+
+.sub_item{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sub_item h3{
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.left_buy .diffrentprice{
+    display: none;
+}
+
+/* right buy now */
+.buynow_container .right_buy{
+    flex: .2;
+    margin-right: -50px;
+    padding: 0 20px;
+    border-radius: 2px;
+}
+.buynow_container .right_buy img{
+    width: 300px;
+}
+
+.buynow_container .right_buy .cost_right{
+    background-color: #fff;
+    padding: 10px 20px;
+    margin-top: 10px;
+    min-height: 250px;
+}
+
+.buynow_container .right_buy .cost_right p{
+    color: #007185;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.buynow_container .right_buy .cost_right h3{
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.cost_right .rightbuy_btn{
+    width: 100%;
+    margin-top: 15px;
+    padding: 8px 0;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background-color:#FFD814;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 0 10px -5px rgba(0,0,0,.5);
+}
+
+.cost_right .rightbuy_btn:hover{
+    background-color:#f3cc0a;
+}
+
+.cost_right .emi{
+    padding: 10px;
+    border: 1px solid #ebe8e8;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+}
+.cost_right .hide{
+  display: none;
+}
+
+.cost_right .show{
+    display: block;
+}
+
+
+
+/* empty cart */
+.buynow_container .empty_buy{
+    flex: .7;
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 2px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+} 
+
+.buynow_container .empty_buy img{
+    width: 70px;
+}
+
+.buynow_container .empty_buy .emptydata{
+    margin-left: 30px;
+}
+
+
+.buynow_container .empty_buy .emptydata h1{
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.buynow_container .empty_buy .emptydata p{
+    font-size: 14px;
+    margin-top: 10px;
+    color: #007185;
+    cursor: pointer;
+}
+
+.empty_buy .empty_btn{
+    margin-left: 60px;
+    padding: 7px 13px;
+    text-decoration: none;
+    background-color:#007185;
+    color: #fff;
+    border-radius: 5px;
+}
+
+
+
+
+/* media query */
+
+@media (max-width:768px){
+    
+    .buynow_section{
+        min-height: 45vh;
+    }
+    .buynow_section .buynow_container{  
+        flex-direction: column;
+        align-items: center;
+        padding:10px;
+    }
+    .cost_right .emi{
+        display: none;
+    }
+
+    .item_containert img{
+        width: 110px;
+        padding-right: 10px;
+    }
+
+    .buynow_container .right_buy img{
+        display: none;
+    }
+
+    .buynow_container .right_buy .cost_right{
+        min-height:100px;
+        margin-bottom: 20px;
+    }
+
+    .buynow_container .left_buy{
+        flex: 1;
+        order: 2;
+    }
+    .buynow_container .right_buy{
+        flex:1;
+        width: 100%;
+        margin-right:0;
+    }
+}
+
+
+@media (max-width:500px){
+
+    .left_buy{
+        padding: 0px;
+    }
+
+    .item_containert img{
+        width: 90px;
+    }
+    .left_buy h1{
+        font-size: 22px;
+    }
+    .item_containert h3{
+        font-size: 17px;
+    }
+
+    
+    .left_buy .diffrentprice{
+        display: block;
+        font-weight: 700;
+    }
+    .item_details img{
+      display: none;
+    }
+    .item_containert p{
+        font-size: 12px;
+    }
+    .item_details .add_remove_select p{
+        font-size: 12px;
+        margin-left: 20px;
+    }
+
+    .item_details .add_remove_select .forremovemedia{
+        display: none;
+    }
+    .item_details .add_remove_select span{
+        display: none;
+    }
+    .sub_item h3{
+       font-size: 18px;
+    }
+    .item_details .unusuall{
+        line-break:loose;
+    }
+
+    .left_buy .leftbuyprice{
+        display: none;
+    }
+    .left_buy .item_price{
+        display: none;
+    }
+    /* for empty */
+    .buynow_container .empty_buy .emptydata h1{
+        font-size: 15px;
+    }
+
+    .buynow_container .empty_buy .emptydata p{
+        font-size: 12px;
+        margin-top: 10px;
+    }
+
+    .empty_buy .empty_btn{
+        margin-left:30px;
+        padding: 7px;
+        font-size: 14px;
+    }
+
+    .buynow_container .empty_buy img{
+        width: 50px;
+        margin-left: -10px;
+    }
+    
+}
+
+
+
